@@ -1,0 +1,84 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f4f4f4;
+}
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+  background: white;
+}
+h1 {
+  text-align: center;
+  color: #333;
+}
+nav {
+  text-align: center;
+  margin-bottom: 20px;
+}
+nav button {
+  margin: 0 10px;
+  padding: 10px 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+nav button:hover {
+  background: #0056b3;
+}
+form {
+  display: flex;
+  flex-direction: column;
+}
+form label {
+  margin-top: 10px;
+}
+form input, form select {
+  padding: 8px;
+  margin-top: 5px;
+}
+form button {
+  margin-top: 20px;
+  padding: 10px;
+  background: #28a745;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+form button:hover {
+  background: #218838;
+}
+#generatedCode {
+  margin-top: 20px;
+  font-weight: bold;
+}
+.dropdowns-column {
+  display: flex;
+  flex-direction: column;
+}
+.table-container {
+  max-height: 60vh;
+  overflow-y: auto;
+  margin-top: 20px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+thead th {
+  position: sticky;
+  top: 0;
+  background: #007bff;
+  color: white;
+}
+td, th {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+tbody tr:nth-child(even) {
+  background: #f9f9f9;
+}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KIT-BX7-MOD-T Configurator</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>KIT-BX7-MOD-T Configurator</h1>
+    <nav>
+      <button onclick="showPage('create')">Crea Configurazione</button>
+      <button onclick="showPage('find')">Trova Configurazione</button>
+    </nav>
+
+    <section id="create" class="page">
+      <form id="configForm">
+        <label for="commissionNumber">Commission Number *</label>
+        <input type="text" id="commissionNumber" name="commissionNumber" required />
+        <div id="dropdowns" class="dropdowns-column"></div>
+        <button type="submit">Genera Codice</button>
+      </form>
+      <div id="generatedCode"></div>
+    </section>
+
+    <section id="find" class="page" style="display:none;">
+      <input type="text" id="searchCode" placeholder="Inserisci codice configurazione" />
+      <button onclick="findConfiguration()">Cerca</button>
+      <div id="foundConfig"></div>
+      <h3>Configurazioni precedenti</h3>
+      <div class="table-container">
+        <table id="allConfigsTable">
+          <thead>
+            <tr><th>Codice</th><th>Commission Number</th><th>Configurazione</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
