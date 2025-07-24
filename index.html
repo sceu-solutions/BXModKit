@@ -3,39 +3,111 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>KIT-BX7-MOD-T Configurator</title>
+  <title>KIT-BX7-MOD-T Configuratore</title>
   <link rel="stylesheet" href="style.css"/>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
   <div class="container">
-    <h1>KIT-BX7-MOD-T Configurator</h1>
+    <h1>KIT-BX7-MOD-T</h1>
     <nav>
       <button onclick="showPage('create')">Crea Configurazione</button>
       <button onclick="showPage('find')">Trova Configurazione</button>
     </nav>
 
     <section id="create" class="page">
+      <h2>Crea Configurazione</h2>
       <form id="configForm">
-        <label for="commissionNumber">Commission Number *</label>
-        <input type="text" id="commissionNumber" name="commissionNumber" required />
-        <div id="dropdowns" class="dropdowns-column"></div>
+        <label>Commission Number: <input type="text" id="commission" required></label><br/>
+<label>Access_side: <select id="Access_side" required>
+<option value="" disabled selected>-- Seleziona --</option>
+<option value="1">1</option>
+<option value="2">2</option>
+</select></label><br/>
+<label>Country: <select id="Country" required>
+<option value="" disabled selected>-- Seleziona --</option>
+<option value="DE">DE</option>
+<option value="ES">ES</option>
+<option value="FR">FR</option>
+<option value="IT">IT</option>
+</select></label><br/>
+<label>Door drive type: <select id="Door drive type" required>
+<option value="" disabled selected>-- Seleziona --</option>
+<option value="mono phase">mono phase</option>
+<option value="three phase">three phase</option>
+</select></label><br/>
+<label>Drive brake current: <select id="Drive brake current" required>
+<option value="" disabled selected>-- Seleziona --</option>
+<option value="over 1.5 A">over 1.5 A</option>
+<option value="under 1.6 A">under 1.6 A</option>
+</select></label><br/>
+<label>GQ: <select id="GQ" required>
+<option value="" disabled selected>-- Seleziona --</option>
+<option value="1000">1000</option>
+<option value="1250">1250</option>
+<option value="320">320</option>
+<option value="450">450</option>
+<option value="630">630</option>
+<option value="800">800</option>
+</select></label><br/>
+<label>Installation type: <select id="Installation type" required>
+<option value="" disabled selected>-- Seleziona --</option>
+<option value="hydraulic">hydraulic</option>
+<option value="traction">traction</option>
+</select></label><br/>
+<label>Machine room: <select id="Machine room" required>
+<option value="" disabled selected>-- Seleziona --</option>
+<option value="A">A</option>
+<option value="B">B</option>
+</select></label><br/>
+<label>VAF type: <select id="VAF type" required>
+<option value="" disabled selected>-- Seleziona --</option>
+<option value="25">25</option>
+<option value="43">43</option>
+</select></label><br/>
+<label>number_floor: <select id="number_floor" required>
+<option value="" disabled selected>-- Seleziona --</option>
+<option value="10">10</option>
+<option value="11">11</option>
+<option value="12">12</option>
+<option value="13">13</option>
+<option value="14">14</option>
+<option value="15">15</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+</select></label><br/>
+
         <button type="submit">Genera Codice</button>
       </form>
-      <div id="generatedCode"></div>
+      <div id="result" style="display:none;">
+        <p><strong>Codice generato:</strong> <span id="generatedCode"></span></p>
+        <button onclick="exportPDF()">Esporta in PDF</button>
+      </div>
+      <h3>Configurazioni precedenti</h3>
+      <div class="table-container">
+        <table id="configTable">
+          <thead><tr><th>Commission</th><th>Codice</th><th>Data</th><th>Valori</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </section>
 
     <section id="find" class="page" style="display:none;">
-      <input type="text" id="searchCode" placeholder="Inserisci codice configurazione" />
-      <button onclick="findConfiguration()">Cerca</button>
-      <div id="foundConfig"></div>
-      <h3>Configurazioni precedenti</h3>
+      <h2>Trova Configurazione</h2>
+      <input type="text" id="searchCode" placeholder="Inserisci codice"/>
+      <button onclick="findConfig()">Cerca</button>
+      <div id="searchResult"></div>
+      <h3>Tutte le configurazioni</h3>
       <div class="table-container">
-        <table id="allConfigsTable">
-          <thead>
-            <tr><th>Codice</th><th>Commission Number</th><th>Configurazione</th></tr>
-          </thead>
+        <table id="allConfigs">
+          <thead><tr><th>Commission</th><th>Codice</th><th>Data</th><th>Valori</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>

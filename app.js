@@ -1,3 +1,4 @@
+
 const firebaseConfig = {
   apiKey: "AIzaSyAXGdzGyZbhmUy5iBPM3R4QkDLos_cVfqA",
   authDomain: "kit-bx-mod-t.firebaseapp.com",
@@ -7,98 +8,71 @@ const firebaseConfig = {
   appId: "1:189557352459:web:c0b5b88412b3a25bad3f0e",
   measurementId: "G-NW61Y519PG"
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const dropdownData = {
-  "number_floor": ["3","4","5","6","7","8","9","10","11","12","13","14","15"],
-  "Access_side": ["1","2"],
-  "Country": ["ES","FR","IT","DE"],
-  "GQ": ["320","450","630","800","1000","1250"],
-  "Machine room": ["A","B"],
-  "VAF type": ["25","43"],
-  "Drive brake current": ["under 1.6 A","over 1.5 A"],
-  "Door drive type": ["mono phase","three phase"],
-  "Installation type": ["traction","hydraulic"]
-};
-
-function showPage(page) {
+function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-  document.getElementById(page).style.display = 'block';
+  document.getElementById(id).style.display = 'block';
 }
 
-function populateDropdowns() {
-  const container = document.getElementById("dropdowns");
-  container.innerHTML = "";
-  for (const key in dropdownData) {
-    const label = document.createElement("label");
-    label.textContent = key;
-    const select = document.createElement("select");
-    select.name = key;
-    select.required = true;
-    dropdownData[key].forEach(val => {
-      const option = document.createElement("option");
-      option.value = val;
-      option.textContent = val;
-      select.appendChild(option);
-    });
-    container.appendChild(label);
-    container.appendChild(select);
-  }
-}
-
-document.getElementById("configForm").addEventListener("submit", async function(e) {
+document.getElementById('configForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const form = e.target;
-  const commissionNumber = form.commissionNumber.value.trim();
-  if (!commissionNumber) {
-    alert("Commission Number è obbligatorio");
-    return;
-  }
-  const config = {};
-  for (const key in dropdownData) {
-    config[key] = form[key].value;
-  }
-  const configString = Object.values(config).join(";");
+  const commission = document.getElementById('commission').value;
+  const selects = document.querySelectorAll('select');
+  const values = [];
+  selects.forEach(s => values.push(`${s.id}: ${s.value}`));
   const code = Math.random().toString(36).substring(2, 10).toUpperCase();
-  await db.collection("configurations").doc(code).set({
-    commissionNumber,
-    configString,
-    timestamp: new Date()
+  const date = new Date().toLocaleString();
+  await db.collection('configurations').doc(code).set({
+    commission, code, date, values
   });
-  document.getElementById("generatedCode").textContent = "Codice generato: " + code;
-  form.reset();
-  populateDropdowns();
-  loadAllConfigurations();
+  document.getElementById('generatedCode').innerText = code;
+  document.getElementById('result').style.display = 'block';
+  loadConfigs();
+  window.generatedData = { commission, code, date, values };
 });
 
-async function findConfiguration() {
-  const code = document.getElementById("searchCode").value.trim();
-  if (!code) return;
-  const doc = await db.collection("configurations").doc(code).get();
-  const container = document.getElementById("foundConfig");
+async function loadConfigs() {
+  const snapshot = await db.collection('configurations').get();
+  const tbody = document.querySelector('#configTable tbody');
+  const allBody = document.querySelector('#allConfigs tbody');
+  tbody.innerHTML = '';
+  allBody.innerHTML = '';
+  snapshot.forEach(doc => {
+    const d = doc.data();
+    const row = `<tr><td>${d.commission}</td><td>${d.code}</td><td>${d.date}</td><td>${d.values.join('<br>')}</td></tr>`;
+    tbody.innerHTML += row;
+    allBody.innerHTML += row;
+  });
+}
+loadConfigs();
+
+async function findConfig() {
+  const code = document.getElementById('searchCode').value;
+  const doc = await db.collection('configurations').doc(code).get();
+  const div = document.getElementById('searchResult');
   if (doc.exists) {
-    const data = doc.data();
-    container.innerHTML = "<p><strong>Commission Number:</strong> " + data.commissionNumber + "</p><p><strong>Configurazione:</strong> " + data.configString + "</p>";
+    const d = doc.data();
+    div.innerHTML = `<p><strong>Commission:</strong> ${d.commission}<br><strong>Codice:</strong> ${d.code}<br><strong>Data:</strong> ${d.date}<br><strong>Valori:</strong><br>${d.values.join('<br>')}</p>`;
   } else {
-    container.textContent = "Configurazione non trovata.";
+    div.innerHTML = '<p>Configurazione non trovata.</p>';
   }
 }
 
-async function loadAllConfigurations() {
-  const snapshot = await db.collection("configurations").orderBy("timestamp", "desc").get();
-  const tbody = document.querySelector("#allConfigsTable tbody");
-  tbody.innerHTML = "";
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    const tr = document.createElement("tr");
-    tr.innerHTML = "<td>" + doc.id + "</td><td>" + data.commissionNumber + "</td><td>" + data.configString + "</td>";
-    tbody.appendChild(tr);
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const data = window.generatedData;
+  doc.setFontSize(14);
+  doc.text(`KIT-BX7-MOD-T - Configurazione`, 10, 10);
+  doc.setFontSize(12);
+  doc.text(`Commission: ${data.commission}`, 10, 20);
+  doc.text(`Codice: ${data.code}`, 10, 30);
+  doc.text(`Data: ${data.date}`, 10, 40);
+  doc.text(`Valori selezionati:`, 10, 50);
+  data.values.forEach((v, i) => {
+    doc.text(`- ${v}`, 10, 60 + i * 10);
   });
+  doc.save(`config_${data.code}.pdf`);
 }
-
-window.onload = () => {
-  populateDropdowns();
-  loadAllConfigurations();
-};
